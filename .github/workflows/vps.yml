@@ -1,17 +1,19 @@
 
-name: Serve2025
+name: Sever-01
 on: workflow_dispatch
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Setup
+      - name: Preparing
         run: |
           Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
           Expand-Archive ngrok.zip
           .\ngrok\ngrok.exe authtoken 2hbZgX1CpuKEHsG4muxj6FF5EQL_7onmAtgmeQKL5jagXJuPR
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-          set-localuser -Name "Administrator" -Password ("Admin@2025" | ConvertTo-SecureString -AsPlainText -Force)
-          Start-Process .\ngrok\ngrok.exe -ArgumentList "tcp --region ap 3389"
+          $Password = ConvertTo-SecureString "Admin@2025" -AsPlainText -Force
+          New-LocalUser "AdminNexus" -Password $Password -Description "VPS Admin"
+          Add-LocalGroupMember -Group "Administrators" -Member "AdminNexus"
+          Start-Process .\ngrok\ngrok.exe -ArgumentList "tcp 3389 --region jp"
           sleep 21600
